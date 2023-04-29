@@ -1,4 +1,4 @@
-import Filter from '../../Filter'
+import Filter from '../pageComponent/Filter'
 import useBookContext from '../context/bookContext'
 import Loading from '../Layout/Loading'
 import AllBooks from '../pageComponent/AllBooks'

@@ -1,14 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { searchAuthors, searchGenres } from '../../utils/utils'
 
-const BooksContext = React.createContext(null)
+const BooksContext = React.createContext()
 
-export const BooksProvider = ({ children }) => {
+export function BooksProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [books, setBooks] = useState([])
-  const [filteredBooks, FilteredBooks] = useState([])
   const [singleLoading, setSingleLoading] = useState(true)
-  const [singleBook, setSingleBook] = useState({})
+  const [singleBook, setSingleBook] = useState(null)
   const [page, setPage] = useState(0)
   const [pagedBooks, setPagedBooks] = useState([])
   const [search, setSearch] = useState('')
@@ -18,7 +17,10 @@ export const BooksProvider = ({ children }) => {
     const res = await fetch('/data/books.json')
     const data = await res.json()
     return data.map((item, i) => {
-      const id = item.title.slice(0, 15).replace(/ /g, '-').toLowerCase() + i
+      const id = `${item.title
+        .slice(0, 15)
+        .replace(/ /g, '-')
+        .toLowerCase()}-${i}`
       return { id, ...item }
     })
   }
@@ -33,9 +35,8 @@ export const BooksProvider = ({ children }) => {
 
   const fetchSingleBook = async (id) => {
     setSingleLoading(true)
-    setSingleBook(null)
     const data = await fetchBooks()
-    const single = await data.find((item) => item.id === id)
+    const single = data.find((item) => item.id === id)
     setSingleBook(single)
     setSingleLoading(false)
   }
@@ -43,14 +44,19 @@ export const BooksProvider = ({ children }) => {
   const paginate = (data) => {
     const perPage = 10
     const allPages = Math.ceil(data.length / perPage)
-    const newUsers = Array.from({ length: allPages }, (_, index) => {
+    return Array.from({ length: allPages }, (_, index) => {
       const start = index * perPage
       return data.slice(start, start + perPage)
     })
-    return newUsers
   }
 
-  const searchBooks = (search) => {
+  const handleSearch = (value) => {
+    setSearch(value)
+    setGenre('all')
+    setPage(0)
+  }
+
+  const searchBooks = () => {
     setLoading(true)
     setGenre('all')
     const newBooks = books.filter((book) => {
@@ -60,23 +66,16 @@ export const BooksProvider = ({ children }) => {
       )
     })
     setPagedBooks(paginate(newBooks))
-    setPage(0)
     setLoading(false)
   }
 
-  const searchGenre = (genre) => {
+  const searchGenre = (value) => {
     setLoading(true)
-    let newBooks
-    if (genre.toLowerCase() === 'all') {
-      newBooks = books
-    } else {
-      newBooks = books.filter((book) => {
-        return searchGenres(book.genre, genre)
-      })
-    }
-
+    const newBooks =
+      value.toLowerCase() === 'all'
+        ? books
+        : books.filter((book) => searchGenres(book.genre, value))
     setPagedBooks(paginate(newBooks))
-    setPage(0)
     setSearch('')
     setLoading(false)
   }
@@ -89,20 +88,20 @@ export const BooksProvider = ({ children }) => {
     <BooksContext.Provider
       value={{
         loading,
-        books,
-        filteredBooks,
         singleBook,
         singleLoading,
         fetchSingleBook,
         pagedBooks,
         page,
         setPage,
+        handleSearch,
         searchBooks,
         searchGenre,
         search,
         genre,
         setSearch,
         setGenre,
+        books,
       }}
     >
       {children}
@@ -110,7 +109,7 @@ export const BooksProvider = ({ children }) => {
   )
 }
 
-const useBookContext = () => {
+function useBookContext() {
   return useContext(BooksContext)
 }
 

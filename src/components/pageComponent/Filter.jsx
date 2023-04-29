@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import useBookContext from './components/context/bookContext'
-import { uniqueValues } from './utils/utils'
+import { useEffect } from 'react'
+import useBookContext from '../context/bookContext'
+import { uniqueValues } from '../../utils/utils'
 
 const Filter = () => {
   const {
