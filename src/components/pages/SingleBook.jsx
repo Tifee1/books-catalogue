@@ -36,7 +36,7 @@ const SingleBook = () => {
   return (
     <main className='w-[90%] max-w-4xl mx-auto py-20'>
       <Link
-        to='/products'
+        to='/'
         className='trans bg-[#d7bb3e] px-3 py-2 uppercase text-base text-white tracking-wider rounded-md hover:bg-black'
       >
         back to HomePage
